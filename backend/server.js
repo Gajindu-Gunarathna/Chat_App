@@ -49,6 +49,41 @@ app.get('/',(req,res)=>{
 //Socket connection in backend
 io.on('connection', (socket)=>{
     console.log("user socket id is :",socket.id );
+
+    //USer connect to server
+    socket.emit('message',{
+        user: "system",
+        text: "Welcome to the chat!",
+        timestamp: new Date().toISOString()
+    })
+
+    socket.broadcast.emit('message',{
+        user: 'Sytem',
+        text: 'A new user joined the chat',
+        timestamp: new Date().toISOString()
+    })
+
+    // User disconnect to server
+    socket.on('disconnect',()=>{
+        console.log("User Disconnected", socket.io);
+        io.emit('message',{
+            user:'System',
+            text: 'A user left the chat',
+            timestamp: new Date().toISOString()
+        })
+    })
+
+    //typing function in backend
+    socket.on('typing',(data)=>{
+        socket.broadcast.emit('userTyping',data);
+    })
+
+    //send and recive messages
+    socket.on('sendMessage',(data)=>{
+        const newMessage=addMessage(data);
+
+        io.emit('receiveMessage',newMessage);
+    })
 })
 
 

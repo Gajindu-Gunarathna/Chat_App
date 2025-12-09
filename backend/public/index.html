@@ -195,29 +195,80 @@
 
         //connection status
         socket.on('connect',()=>{
-            statusDiv.textContent="Connected";
+            statusDiv.textContent="🟢 Connected";
             console.log('Connected to server')
         })
         socket.on('disconnect',()=>{
-            statusDiv.textContent="Disconnected";
+            statusDiv.textContent="❌ Disconnected";
             console.log('Diconnected fron server')
         })
 
         //System messages
         socket.on('message',(data)=>{
-            displayMessage(data,'system');
+            displayMessage(data,"system");
         })
 
-        //Function
-        function displayMessage(data,type){
-            const messagesDiv=document.createElement('div');
-            messagesDiv.className=`message ${type}`;
+        //Function display message
+        function displayMessage(data, type) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${type}`;
 
-            if(type!='system'){
-                messagesDiv.innerHTML=`
-                <div class>`
-            }
+          if (type !== 'system') {
+            messageDiv.innerHTML = `
+              <div class="message-user">${data.user}</div>
+              <div class="message-text">${data.text}</div>
+              <div class="message-time">${new Date(data.timestamp).toLocaleTimeString()}</div>
+            `;
+          } else {
+            messageDiv.innerHTML = `<div class="message-text">${data.text}</div>`;
+          }
+
+          messagesDiv.appendChild(messageDiv);
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
+
+
+        //Typing functionalities
+        messageInput.addEventListener('input',()=>{
+          const user= userInput.value.trim() || 'user';
+          socket.emit('typing',{user})
+        })
+
+        //listen a user is typing
+        socket.on('userTyping',(data)=>{
+          typingDiv.textContent=`${data.user} is typing ....`;
+          clearTimeout(typingTimeout);
+          typingTimeout=setTimeout(()=>{
+            typingDiv.textContent="";
+          },2000);
+        })
+
+        //send and recive the function
+        function sendMessage(){
+          const text=messageInput.value.trim();
+          const user=userInput.value.trim() || 'user';
+          if(text){
+            socket.emit('sendMessage',{ text, user});
+            messageInput.value="";
+          }
+        }
+
+        //Adding Event Lisntener to our buttons
+        sendBtn.addEventListener('click',sendMessage)
+
+        //on pc
+        messageInput.addEventListener('keypress',(e)=>{
+          if(e.key==='Enter'){
+            sendMessage();
+          }
+        })
+
+        socket.on('receiveMessage',(data)=>{
+            const currentUser = userInput.value.trim() || 'User';
+            // Use '===' for strict comparison
+            const messageType = data.user === currentUser ? 'sent' : 'received'; 
+            displayMessage(data, messageType);
+        });
     </script>
 </body>
 </html>
