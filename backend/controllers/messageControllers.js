@@ -85,8 +85,22 @@ const deleteAllMessages=(req,res)=>{
     }
 }
 
+//Adding new messages
+const addMessage=(req,res)=>{
+    const newMessage={
+        id:messages.length+1,
+        text:messageData.text,
+        user:messageData.user,
+        timestamp: new Data().toISOString()
+    }
+
+    messages.push(newMessage);  
+    return newMessage;
+}
+
 module.exports={
     getMessages,
     createMessages,
-    deleteAllMessages
+    deleteAllMessages,
+    addMessage
 }

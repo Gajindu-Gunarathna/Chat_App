@@ -1,6 +1,9 @@
 const express = require('express');
 const cors=require('cors');
 const dotenv=require('dotenv');
+const http=require('http');
+const {Server}=require('socket.io');
+const {addMessage}=require('./controllers/messageControllers')
 
 
 //dotenc in server.js
@@ -8,6 +11,13 @@ dotenv.config();
 
 
 const app = express();
+const server=http.createServer(app);
+const io = new Server(server,{
+    cors:{
+        origin:"*",
+        methods:["GET","POST"]
+    }
+})
 const PORT=5000;
 
 
@@ -15,6 +25,7 @@ const PORT=5000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
+app.use(express.static('public'))
 
 
 //Routes in server.js
@@ -29,10 +40,17 @@ app.get('/',(req,res)=>{
         endpoints: {
             getMessage: 'GET /api/messages',
             createMessages: 'POST /api/messages',
-            deleteMessages: 'DELET /api/messages'
+            deleteMessages: 'DELET /api/messages',
+            testClient:'GET /index.html'
         }
     });
 })
+
+//Socket connection in backend
+io.on('connection', (socket)=>{
+    console.log("user socket id is :",socket.id );
+})
+
 
 // Test route
 app.get('/test',(req,res)=>{
@@ -61,7 +79,7 @@ app.use((err,req,res,next)=>{
     })
 })
 
-app.listen(PORT,()=>{
+server.listen(PORT,()=>{
     console.log(`Server is running at PORT number:${PORT}`)
 
 })
