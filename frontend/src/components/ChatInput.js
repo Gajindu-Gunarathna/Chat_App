@@ -1,6 +1,6 @@
 // ⭐ NEW FILE - Chat Input Component
 import React, { useState } from "react";
-import "./ChatInput.css";
+import "./Chatinput.css";
 
 function ChatInput({ onSendMessage, onTyping }) {
   const [message, setMessage] = useState("");

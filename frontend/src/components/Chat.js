@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import MessageList from "./MessageList";
-import ChatInput from "./ChatInput";
+import ChatInput from "./Chatinput";
 import "./Chat.css";
 
 const socket = io(process.env.REACT_APP_SOCKET_URL || "http://localhost:5000");
